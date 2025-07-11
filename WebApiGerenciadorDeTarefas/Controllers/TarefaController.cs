@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApiGerenciadorDeTarefas.Context;
 using WebApiGerenciadorDeTarefas.Models;
 
 namespace WebApiGerenciadorDeTarefas.Controllers
@@ -7,6 +8,13 @@ namespace WebApiGerenciadorDeTarefas.Controllers
     [Route("Controller")]
     public class TarefaController : ControllerBase
     {
+        private readonly OrganizadorContext _context;
+
+        public TarefaController(OrganizadorContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet("{id}")]
         public IActionResult ObterPorId(int id)
         {
