@@ -5,7 +5,7 @@ using WebApiGerenciadorDeTarefas.Models;
 namespace WebApiGerenciadorDeTarefas.Controllers
 {
     [ApiController]
-    [Route("Controller")]
+    [Route("Tarefa")]
     public class TarefaController : ControllerBase
     {
         private readonly OrganizadorContext _context;
@@ -18,31 +18,43 @@ namespace WebApiGerenciadorDeTarefas.Controllers
         [HttpGet("{id}")]
         public IActionResult ObterPorId(int id)
         {
-            return Ok();
+            var tarefa = _context.Tarefas.Find(id);
+
+            if (tarefa == null)
+                return NotFound();
+
+            return Ok(tarefa);
         }
 
         [HttpGet("ObterTodos")]   
         public IActionResult ObterTodos()
         {
-            return Ok();
+            var tarefa = _context.Tarefas.ToList();
+
+            return Ok(tarefa);
         }
 
         [HttpGet("ObterPorTítulo")]
         public IActionResult ObterPorTitulo(string titulo)
-        {
-            return Ok();
+        {         
+            var tarefa = _context.Tarefas.Where(x => x.Titulo.Contains(titulo)).ToList();
+
+            return Ok(tarefa);
         }
 
         [HttpGet("ObterPorData")]
         public IActionResult ObterPorData(DateTime data)
         {
-            return Ok();
+            var tarefa = _context.Tarefas.Where(x => x.Data.Date == data.Date);
+            return Ok(tarefa);
         }
 
         [HttpGet("ObterPorStatus")]
         public IActionResult ObterPorStatus(EnumStatusTarefa status)
         {
-            return Ok();
+            var tarefa = _context.Tarefas.Where(x => x.Status == status);
+
+            return Ok(tarefa);
         }
 
         [HttpPost]
@@ -51,18 +63,40 @@ namespace WebApiGerenciadorDeTarefas.Controllers
             if (tarefa.Data == DateTime.MinValue)
                 return BadRequest(new { Erro = "A data da tarefa não pode ser vazia"});
 
+            _context.Add(tarefa);
+            _context.SaveChanges();
             return CreatedAtAction(nameof(ObterPorId), new { id = tarefa.Id }, tarefa);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Atualizar(int id, Tarefa tarefa)
+        public IActionResult Atualizar(int id, Tarefa novaTarefa)
         {
-            return Ok();
+            var tarefa = _context.Tarefas.Find(id);
+
+            if (tarefa == null)
+                return NotFound();
+
+            tarefa.Titulo = novaTarefa.Titulo;
+            tarefa.Descricao = novaTarefa.Descricao;
+            tarefa.Data = novaTarefa.Data;
+
+            _context.Tarefas.Update(tarefa);
+            _context.SaveChanges();
+
+            return Ok(tarefa);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Deletar(int id)
         {
+            var tarefa = _context.Tarefas.Find(id);
+
+            if (tarefa == null)
+                return NotFound();
+
+            _context.Tarefas.Remove(tarefa);
+            _context.SaveChanges();
+
             return NoContent();
         }
     }
